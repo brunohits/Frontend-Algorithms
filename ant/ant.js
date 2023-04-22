@@ -192,37 +192,6 @@ function grafOutput(matrixPher, circlesX, circlesY)
     drawAllLines(matrix);
 }
  
-function outputFinal(matrixPher, circlesX, circlesY)
-{
-    let current = 0;
-    let possibleMoves = [];
-    for(let index = 1; index < circlesX.length; ++index)
-    {
-        possibleMoves.push(index);
-    }
- 
-    let matrix = makeEmptyMatrix(circlesX, circlesY);
-    while(possibleMoves.length > 0)
-    {
-        let maxPher = 0;
-        let inds = 0;
-        for(let index = 0; index < possibleMoves.length; ++index)
-        {
-            if(matrixPher[current][possibleMoves[index]] > maxPher)
-            {
-                maxPher = matrixPher[current][possibleMoves[index]];
-                inds = index;
-            }
-        }
-        console.log(possibleMoves[inds]);
-        matrix[current][possibleMoves[inds]] = 5;
-        current = possibleMoves[inds];
-        possibleMoves.splice(inds, 1);
-    }
-    matrix[current][0] = 5;
-    drawAllLines(matrix);
-}
- 
 async function muravyishki(iterationsNumber, distPower, pherPower, Q, pherMinus, circlesX, circlesY)
 {
     blockButton();
