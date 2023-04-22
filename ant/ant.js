@@ -4,23 +4,23 @@ function playMusic() {
     music.src = "../sound/vargan.mp3"
     music.autoplay = true;
 }
-
+ 
 function dist(x1, x2, y1, y2)
 {
   return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 }
-
+ 
 function random(min, max)
 {
   let rand = min + Math.random() * (max - min);
   return rand;
 }
-
+ 
 function percent(max, val)
 {
   return Math.floor( ( val / max * 100 ) / 10 ) + 1;
 }
-
+ 
 function makeMatrixDist(circlesX, circlesY)
 {
     let matrix = [];
@@ -34,7 +34,7 @@ function makeMatrixDist(circlesX, circlesY)
     }
     return matrix;
 }
-
+ 
 function makeMatrixDistAnti(distPower, matrixDist, circlesX, circlesY)
 {
     let matrix = [];
@@ -55,7 +55,7 @@ function makeMatrixDistAnti(distPower, matrixDist, circlesX, circlesY)
     }
     return matrix;
 }
-
+ 
 function makeMatrixPher(circlesX, circlesY)
 {
     let matrix = [];
@@ -76,7 +76,7 @@ function makeMatrixPher(circlesX, circlesY)
     }
     return matrix;
 }
-
+ 
 function makeEmptyMatrix(circlesX, circlesY)
 {
     let matrix = [];
@@ -90,7 +90,7 @@ function makeEmptyMatrix(circlesX, circlesY)
     }
     return matrix;
 }
-
+ 
 function makeChanceSum(currentPoint, nextPossible, matrixPher, pherPow, matrixDistAnti)
 {
     let sum = 0;
@@ -100,7 +100,7 @@ function makeChanceSum(currentPoint, nextPossible, matrixPher, pherPow, matrixDi
     }
     return sum;
 }
-
+ 
 function makeChance(currentPoint, nextPossible, matrixPher, pherPow, matrixDistAnti, chanceSum)
 {
     let arr = [];
@@ -117,7 +117,7 @@ function makeChance(currentPoint, nextPossible, matrixPher, pherPow, matrixDistA
     }
     return arr;
 }
-
+ 
 function choseNewtPoint(chanceArr)
 {
     let nextInd = 0;
@@ -136,7 +136,7 @@ function choseNewtPoint(chanceArr)
     }
     return nextInd;
 }
-
+ 
 function summDeltaAndAnt(matrixDelta, matrixAnt, distSum, Q, circlesX, circlesY)
 {
     for(let y = 0; y < circlesY.length; ++y)
@@ -151,7 +151,7 @@ function summDeltaAndAnt(matrixDelta, matrixAnt, distSum, Q, circlesX, circlesY)
     }
     return matrixDelta;
 }
-
+ 
 function matrixSum(matrixPher, matrixDelta, pherMinus, circlesX, circlesY)
 {
     for(let y = 0; y < circlesY.length; ++y)
@@ -164,7 +164,7 @@ function matrixSum(matrixPher, matrixDelta, pherMinus, circlesX, circlesY)
     }
     return matrixPher;
 }
-
+ 
 function grafOutput(matrixPher, circlesX, circlesY)
 {
     let maxPher = 0;
@@ -178,7 +178,7 @@ function grafOutput(matrixPher, circlesX, circlesY)
             }
         }
     }
-    
+ 
     let matrix = [];
     for(let y = 0; y < circlesY.length; ++y)
     {
@@ -188,10 +188,10 @@ function grafOutput(matrixPher, circlesX, circlesY)
             matrix[y][x] = percent(maxPher, matrixPher[y][x]);
         }
     }
-
+ 
     drawAllLines(matrix);
 }
-
+ 
 function outputFinal(matrixPher, circlesX, circlesY)
 {
     let current = 0;
@@ -200,7 +200,7 @@ function outputFinal(matrixPher, circlesX, circlesY)
     {
         possibleMoves.push(index);
     }
-
+ 
     let matrix = makeEmptyMatrix(circlesX, circlesY);
     while(possibleMoves.length > 0)
     {
@@ -214,6 +214,7 @@ function outputFinal(matrixPher, circlesX, circlesY)
                 inds = index;
             }
         }
+        console.log(possibleMoves[inds]);
         matrix[current][possibleMoves[inds]] = 5;
         current = possibleMoves[inds];
         possibleMoves.splice(inds, 1);
@@ -221,26 +222,28 @@ function outputFinal(matrixPher, circlesX, circlesY)
     matrix[current][0] = 5;
     drawAllLines(matrix);
 }
-
+ 
 async function muravyishki(iterationsNumber, distPower, pherPower, Q, pherMinus, circlesX, circlesY)
 {
     blockButton();
-
+ 
     let antsNumber = circlesX.length;
     let matrixDist = makeMatrixDist(circlesX, circlesY);
     let matrixDistAnti = makeMatrixDistAnti(distPower, matrixDist, circlesX, circlesY);
     let matrixPher = makeMatrixPher(circlesX, circlesY);
-
+    let distMin = 999999;
+    let minWay = makeEmptyMatrix(circlesX, circlesY);
+ 
     while(iterationsNumber-- > 0)
     {
         let matrixDeltaPher = makeEmptyMatrix(circlesX, circlesY);
-
+ 
         for(let count = 0; count < antsNumber; ++count)
         {
             let matrixDelta = makeEmptyMatrix(circlesX, circlesY);
-
+ 
             let currentPoint = count;
-
+ 
             let possibleMoves = [];
             for(let index = 0; index < circlesX.length; ++index)
             {
@@ -249,34 +252,47 @@ async function muravyishki(iterationsNumber, distPower, pherPower, Q, pherMinus,
                     possibleMoves.push(index);
                 }
             }
-
+ 
             let distSum = 0;
             while(possibleMoves.length > 0)
             {
                 let chanceSum = makeChanceSum(currentPoint, possibleMoves, matrixPher, pherPower, matrixDistAnti);
                 let chanceArr = makeChance(currentPoint, possibleMoves, matrixPher, pherPower, matrixDistAnti, chanceSum);
                 let nextIndex = choseNewtPoint(chanceArr);
-
+ 
                 matrixDelta[currentPoint][possibleMoves[nextIndex]] = 1;
                 distSum +=  matrixDist[currentPoint][possibleMoves[nextIndex]];
                 currentPoint = possibleMoves[nextIndex];
                 possibleMoves.splice(nextIndex, 1);
             }
-
+ 
             matrixDelta[currentPoint][count] = 1;
             distSum +=  matrixDist[currentPoint][count];
-
+ 
+            if(distMin > distSum)
+            {
+                minWay =  makeEmptyMatrix(circlesX, circlesY);
+                for(let y = 0; y < circlesY.length; ++y)
+                {
+                    for(let x = 0; x < circlesX.length; ++x)
+                    {
+                        minWay[y][x] = 5 * matrixDelta[y][x];
+                    }
+                }
+                distMin = distSum;
+            }
+ 
             matrixDeltaPher = summDeltaAndAnt(matrixDeltaPher, matrixDelta, distSum, Q, circlesX, circlesY);
         }
-
+ 
         matrixPher = matrixSum(matrixPher, matrixDeltaPher, pherMinus, circlesX, circlesY);
-
+ 
         grafOutput(matrixPher, circlesX, circlesY);
         await sleep();
     }
-
-    outputFinal(matrixPher, circlesX, circlesY);
-    console.log(matrixPher);
-
+ 
+    drawAllLines(minWay);
+    console.log(minWay);
+ 
     unblockButton();
 }
