@@ -206,7 +206,7 @@ function outputFinal(matrixPher, circlesX, circlesY)
     {
         let maxPher = 0;
         let inds = 0;
-        for(let index = 0; index < possibleMoves.legth; ++index)
+        for(let index = 0; index < possibleMoves.length; ++index)
         {
             if(matrixPher[current][possibleMoves[index]] > maxPher)
             {
